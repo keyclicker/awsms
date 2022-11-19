@@ -1,5 +1,5 @@
 # AWSMS
-Advanced Web Store Managment System
+Advanced Web Store Management System
 
 - ⚡️Blazingly fast
 - 🍋Fresh
