@@ -4,15 +4,15 @@ import model
 import schema
 
 
-def get_books(db: Session, skip: int = 0, limit: int = 100):
+def get_products(db: Session, skip: int = 0, limit: int = 100):
     return db.query(model.Product).offset(skip).limit(limit).all()
 
 
-def get_book_by_id(db: Session, product_id: int):
+def get_product_by_id(db: Session, product_id: int):
     return db.query(model.Product).filter(model.Product.id == product_id).first()
 
 
-def create_book(db: Session, product: schema.ProductSchema):
+def create_product(db: Session, product: schema.ProductSchema):
     _product = model.Product(
         id=product.id,
         name=product.name,
@@ -27,15 +27,15 @@ def create_book(db: Session, product: schema.ProductSchema):
     return _product
 
 
-def delete_book(db: Session, product_id: int):
-    _product = get_book_by_id(db, product_id)
+def delete_product(db: Session, product_id: int):
+    _product = get_product_by_id(db, product_id)
 
     db.delete(_product)
     db.commit()
 
 
-def update_book(db: Session, product_id: int, name: str, price: float, quantity: int):
-    _product = get_book_by_id(db, product_id)
+def update_product(db: Session, product_id: int, name: str, price: float, quantity: int):
+    _product = get_product_by_id(db, product_id)
     _product.name = name
     _product.price = price
     _product.quantity = quantity

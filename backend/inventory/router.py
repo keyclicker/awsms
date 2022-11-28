@@ -20,7 +20,7 @@ def get_db():
 
 @router.post('/create')
 async def create(request: schema.RequestProduct, db: Session = Depends(get_db)) -> dict:
-    crud.create_book(db, request.parameter)
+    crud.create_product(db, request.parameter)
 
     return schema.Response(
         code=200,
@@ -31,7 +31,7 @@ async def create(request: schema.RequestProduct, db: Session = Depends(get_db)) 
 
 @router.get('/')
 async def get(db: Session = Depends(get_db)) -> dict:
-    _products = crud.get_books(db)
+    _products = crud.get_products(db)
 
     return schema.Response(
         code=200,
@@ -43,7 +43,7 @@ async def get(db: Session = Depends(get_db)) -> dict:
 
 @router.get('/{id}')
 async def get_by_id(product_id: int, db: Session = Depends(get_db)) -> dict:
-    _product = crud.get_book_by_id(db, product_id)
+    _product = crud.get_product_by_id(db, product_id)
 
     return schema.Response(
         code=200,
@@ -55,7 +55,7 @@ async def get_by_id(product_id: int, db: Session = Depends(get_db)) -> dict:
 
 @router.put('/update')
 async def update(request: schema.RequestProduct, db: Session = Depends(get_db)) -> dict:
-    _product = crud.update_book(
+    _product = crud.update_product(
         db=db,
         product_id=request.parameter.id,
         name=request.parameter.name,
@@ -73,7 +73,7 @@ async def update(request: schema.RequestProduct, db: Session = Depends(get_db)) 
 
 @router.delete('/delete')
 async def delete(product_id: int, db: Session = Depends(get_db)) -> dict:
-    crud.delete_book(db, product_id)
+    crud.delete_product(db, product_id)
 
     return schema.Response(
         code=200,
