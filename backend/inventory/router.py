@@ -71,7 +71,7 @@ async def update(request: schema.RequestProduct, db: Session = Depends(get_db)) 
     ).dict(exclude_none=True)
 
 
-@router.delete('/delete')
+@router.delete('/{product_id}')
 async def delete(product_id: int, db: Session = Depends(get_db)) -> dict:
     crud.delete_product(db, product_id)
 
