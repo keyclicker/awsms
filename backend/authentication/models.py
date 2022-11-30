@@ -1,4 +1,4 @@
-import config
+import database
 
 from sqlalchemy import Column, String
 

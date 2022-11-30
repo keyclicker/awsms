@@ -1,19 +1,19 @@
 from sqlalchemy.orm import Session
 
-import model
-import schema
+import models
+import schemas
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(model.User).offset(skip).limit(limit).all()
+    return db.query(models.User).offset(skip).limit(limit).all()
 
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(model.User).filter(model.User.username == username).first()
+    return db.query(models.User).filter(models.User.username == username).first()
 
 
-def create_user(db: Session, user_schema: schema.UserSchema):
-    user = model.User(
+def create_user(db: Session, user_schema: schemas.User):
+    user = models.User(
         username=user_schema.username,
         hashed_password=user_schema.hashed_password,
     )
