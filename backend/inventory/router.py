@@ -1,82 +1,61 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
+from starlette import status
 
-import config
-import schema
+import database
+import schemas
 import crud
 
 router = APIRouter()
+security = HTTPBearer()
 
 
-def get_db():
-    db = config.SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
+@router.post('/', response_model=schemas.Good, dependencies=[Depends(security)])
+async def create(new_good: schemas.GoodCreate, session: Session = Depends(database.get_session)):
+    return crud.create_good(session=session, good=new_good)
 
 
-@router.post('/create')
-async def create(request: schema.RequestProduct, db: Session = Depends(get_db)) -> dict:
-    crud.create_product(db, request.parameter)
-
-    return schema.Response(
-        code=200,
-        status='Ok',
-        message="Product create successfully"
-    ).dict(exclude_none=True)
+@router.get('/', dependencies=[Depends(security)])
+async def get_all_goods(session: Session = Depends(database.get_session)):
+    return crud.get_goods(session)
 
 
-@router.get('/')
-async def get(db: Session = Depends(get_db)) -> dict:
-    _products = crud.get_products(db)
+@router.get('/{good_id}', response_model=schemas.Good, dependencies=[Depends(security)])
+async def get_good_by_id(good_id: int, session: Session = Depends(database.get_session)):
+    good = crud.get_good_by_id(session=session, good_id=good_id)
 
-    return schema.Response(
-        code=200,
-        status='Ok',
-        message="Successfully fetch all products",
-        result=_products
-    ).dict(exclude_none=True)
+    if good is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Could not find the good',
+        )
 
-
-@router.get('/{id}')
-async def get_by_id(product_id: int, db: Session = Depends(get_db)) -> dict:
-    _product = crud.get_product_by_id(db, product_id)
-
-    return schema.Response(
-        code=200,
-        status='Ok',
-        message="Successfully fetch product",
-        result=_product
-    ).dict(exclude_none=True)
+    return good
 
 
-@router.put('/update')
-async def update(request: schema.RequestProduct, db: Session = Depends(get_db)) -> dict:
-    _product = crud.update_product(
-        db=db,
-        product_id=request.parameter.id,
-        name=request.parameter.name,
-        price=request.parameter.price,
-        quantity=request.parameter.quantity
-    )
+@router.put('/', response_model=schemas.Good, dependencies=[Depends(security)])
+async def update_good(updated_good: schemas.GoodIn, session: Session = Depends(database.get_session)):
+    good = crud.update_good(session=session, updated_good=updated_good)
 
-    return schema.Response(
-        code=200,
-        status='Ok',
-        message="Successfully update product",
-        result=_product
-    ).dict(exclude_none=True)
+    if not good:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Could not find the good',
+        )
+
+    return good
 
 
-@router.delete('/{product_id}')
-async def delete(product_id: int, db: Session = Depends(get_db)) -> dict:
-    crud.delete_product(db, product_id)
+@router.delete('/{good_id}', dependencies=[Depends(security)])
+async def delete_good(good_id: int, session: Session = Depends(database.get_session)):
+    result = crud.delete_good(session=session, good_id=good_id)
 
-    return schema.Response(
-        code=200,
-        status='Ok',
-        message="Successfully delete product",
-    ).dict(exclude_none=True)
+    if result is False:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Could not find the good',
+        )
+
+    return {'message': 'Ok'}

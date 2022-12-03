@@ -1,46 +1,65 @@
 from sqlalchemy.orm import Session
 
-import model
-import schema
+import models
+import schemas
 
 
-def get_products(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(model.Product).offset(skip).limit(limit).all()
+def get_goods(session: Session, skip: int = 0, limit: int = 100):
+    return session.query(models.Good) \
+        .order_by(models.Good.id.asc()) \
+        .offset(skip) \
+        .limit(limit) \
+        .all()
 
 
-def get_product_by_id(db: Session, product_id: int):
-    return db.query(model.Product).filter(model.Product.id == product_id).first()
+def get_good_by_id(session: Session, good_id: int):
+    return session.query(models.Good).filter(models.Good.id == good_id).first()
 
 
-def create_product(db: Session, product: schema.ProductSchema):
-    _product = model.Product(
-        id=product.id,
-        name=product.name,
-        price=product.price,
-        quantity=product.quantity
+def create_good(session: Session, good: schemas.GoodCreate):
+    good = models.Good(
+        name=good.name,
+        image=good.image,
+        price=good.price,
+        category=good.category,
+        description=good.description,
+        count=good.count,
+        specs=good.specs
     )
 
-    db.add(_product)
-    db.commit()
-    db.refresh(_product)
+    session.add(good)
+    session.commit()
+    session.refresh(good)
 
-    return _product
-
-
-def delete_product(db: Session, product_id: int):
-    _product = get_product_by_id(db, product_id)
-
-    db.delete(_product)
-    db.commit()
+    return good
 
 
-def update_product(db: Session, product_id: int, name: str, price: float, quantity: int):
-    _product = get_product_by_id(db, product_id)
-    _product.name = name
-    _product.price = price
-    _product.quantity = quantity
+def delete_good(session: Session, good_id: int) -> bool:
+    good = get_good_by_id(session, good_id)
 
-    db.commit()
-    db.refresh(_product)
+    if good is None:
+        return False
 
-    return _product
+    session.delete(good)
+    session.commit()
+
+    return True
+
+
+def update_good(session: Session, updated_good: schemas.GoodIn):
+    good = get_good_by_id(session, updated_good.id)
+
+    if good is None:
+        return None
+
+    for key, value in updated_good.dict().items():
+        if key == 'id':
+            continue
+
+        if value is not None:
+            setattr(good, key, value)
+
+    session.commit()
+    session.refresh(good)
+
+    return good

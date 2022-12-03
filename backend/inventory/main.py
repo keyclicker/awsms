@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
 
-import config
+import database
 import router
 
-config.Base.metadata.create_all(bind=config.engine)
+database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 app.add_middleware(
@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-app.include_router(router.router, prefix='/product', tags=['product'])
+app.include_router(router.router, prefix='/goods')
 
 redis = get_redis_connection(
     host='redis-16799.c293.eu-central-1-1.ec2.cloud.redislabs.com',
