@@ -16,15 +16,15 @@ def get_good_by_id(session: Session, good_id: int):
     return session.query(models.Good).filter(models.Good.id == good_id).first()
 
 
-def create_good(session: Session, good: schemas.GoodCreate):
+def create_good(session: Session, good_data: schemas.GoodCreate):
     good = models.Good(
-        name=good.name,
-        image=good.image,
-        price=good.price,
-        category=good.category,
-        description=good.description,
-        count=good.count,
-        specs=good.specs
+        name=good_data.name,
+        image=good_data.image,
+        price=good_data.price,
+        category=good_data.category,
+        description=good_data.description,
+        count=good_data.count,
+        specs=good_data.specs
     )
 
     session.add(good)

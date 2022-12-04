@@ -13,8 +13,8 @@ security = HTTPBearer()
 
 
 @router.post('/', response_model=schemas.Good, dependencies=[Depends(security)])
-async def create(new_good: schemas.GoodCreate, session: Session = Depends(database.get_session)):
-    return crud.create_good(session=session, good=new_good)
+async def create(good_data: schemas.GoodCreate, session: Session = Depends(database.get_session)):
+    return crud.create_good(session=session, good_data=good_data)
 
 
 @router.get('/', dependencies=[Depends(security)])
