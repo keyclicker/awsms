@@ -4,8 +4,8 @@ from fastapi.security import HTTPBearer
 from fastapi.background import BackgroundTasks
 from sqlalchemy.orm import Session
 from starlette import status
-from redis_om import get_redis_connection, HashModel
 
+import pickle
 import time
 import database
 import schemas
@@ -13,13 +13,6 @@ import crud
 
 router = APIRouter()
 security = HTTPBearer()
-
-redis = get_redis_connection(
-    host='redis-16799.c293.eu-central-1-1.ec2.cloud.redislabs.com',
-    port=16799,
-    password='cALu8Gy1NFs88QL7R5jUDUL6U6SfVNwj',
-    decode_responses=True
-)
 
 
 @router.get('/', dependencies=[Depends(security)])
@@ -79,11 +72,26 @@ async def create_order(
 def complete_order(order: schemas.Order, session: Session):
     time.sleep(5)
 
+    order_id = order.id
+
     updated_order = schemas.OrderIn(
-        id=order.id,
+        id=order_id,
         status='completed'
     )
 
-    order = crud.update_order(session=session, updated_order=updated_order)
+    crud.update_order(session=session, updated_order=updated_order)
 
-    redis.xadd('order_completed', order.__dict__, '*')  # '*' - auto generated id
+    order_goods_model = crud.get_order_goods_by_order_id(session=session, order_id=order_id)
+    order_goods = [schemas.OrderGood.from_orm(order_good_model) for order_good_model in order_goods_model]
+
+    fields = {
+        'order_id': order_id,
+        'goods': [order_good.dict(include={'good_id': True, 'count': True}) for order_good in order_goods]
+    }
+
+    print('send message to inventory service')
+
+    database.redis.xadd(
+        name='complete_order',
+        fields={'pickle': pickle.dumps(fields)}
+    )

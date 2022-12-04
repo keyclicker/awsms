@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from redis_om import get_redis_connection
 
 HOST = 'localhost'
 PORT = 5432
@@ -15,6 +16,14 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+# lightweight analog of RabbitMQ
+redis = get_redis_connection(
+    host='redis-16799.c293.eu-central-1-1.ec2.cloud.redislabs.com',
+    port=16799,
+    password='cALu8Gy1NFs88QL7R5jUDUL6U6SfVNwj',
+    decode_responses=True  # default encoding == 'utf-8'
+)
 
 
 def get_session():
