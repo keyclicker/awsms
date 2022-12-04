@@ -6,7 +6,7 @@ import FiltersCard from '../components/FiltersCard'
 import GoodCard from '../components/GoodCard'
 import { GoodCreator } from '../components/GoodCreator'
 
-export default function SearchPage(state) {
+export default function SearchPage({ state }) {
   const [query, setQuery] = useState('')
   const [goods, setGoods] = useState([])
   const [showCreator, setShowCreator] = useState(false)

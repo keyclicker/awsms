@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Outlet } from 'react-router-dom'
 
 import api from './api/api'
 import Header from './components/Header'
-import SearchPage from './pages/search'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -21,7 +21,7 @@ function App() {
   return (
     <>
       <Header state={state} />
-      <SearchPage state={state} />
+      <Outlet state={state} />
     </>
   )
 }
