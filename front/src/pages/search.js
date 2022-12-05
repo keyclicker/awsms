@@ -6,24 +6,35 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { useOutletContext } from 'react-router-dom'
 
 import api from '../api/api'
-import { NarrowGoodCard } from '../components/GoodCards'
-import { GoodModal } from '../components/GoodModal'
+import { GoodModal, NarrowGoodCard } from '../components/GoodCards'
 
 export default function SearchPage() {
   let state = useOutletContext()
 
-  const [query, setQuery] = useState('')
   const [goods, setGoods] = useState([])
-  const [showCreator, setShowCreator] = useState(false)
+
+  const [query, setQuery] = useState('')
+  const [minPrice, setMinPrice] = useState(0)
+  const [maxPrice, setMaxPrice] = useState(1000)
+  const [absoluteMinPrice, setAbsoluteMinPrice] = useState(0)
+  const [absoluteMaxPrice, setAbsoluteMaxPrice] = useState(1000)
+  const [available, setAvailable] = useState(false)
+  const [category, setCategory] = useState(true)
+  const [categoryList, setCategoryList] = useState([])
 
   const [showModal, setShowModal] = useState(false)
   const [modalGood, setModalGood] = useState(null)
 
   useEffect(() => {
-    api.search(query).then((res) => {
-      setGoods(res.data.list)
-    })
-  }, [query])
+    api
+      .search({ query, minPrice, maxPrice, available, category })
+      .then((res) => {
+        setGoods(res.data.list)
+        setAbsoluteMinPrice(res.data.minPrice)
+        setAbsoluteMaxPrice(res.data.maxPrice)
+        setCategoryList(res.data.categories)
+      })
+  }, [query, minPrice, maxPrice, available, category])
 
   state = {
     ...state,
@@ -31,8 +42,20 @@ export default function SearchPage() {
     setQuery,
     goods,
     setGoods,
-    showCreator,
-    setShowCreator,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    absoluteMinPrice,
+    setAbsoluteMinPrice,
+    absoluteMaxPrice,
+    setAbsoluteMaxPrice,
+    available,
+    setAvailable,
+    category,
+    setCategory,
+    categoryList,
+    setCategoryList,
   }
 
   return (
@@ -40,11 +63,6 @@ export default function SearchPage() {
       <Row className='mt-3 '>
         <Col xs={{ span: 12 }} lg={{ span: 3 }}>
           <FiltersCard state={state} />
-          {state?.user?.type === 0 && !showCreator && (
-            <Button className='w-100' onClick={() => setShowCreator(true)}>
-              Create Goods
-            </Button>
-          )}
         </Col>
 
         <Col>
@@ -78,6 +96,15 @@ export default function SearchPage() {
 }
 
 function FiltersCard({ state }) {
+  const min = state.absoluteMinPrice
+  const max = state.absoluteMaxPrice
+  const step = (max - min) / 100
+
+  const setMax = (e) =>
+    state.setMaxPrice(Math.max(e.target.value, state.minPrice))
+  const setMin = (e) =>
+    state.setMinPrice(Math.min(e.target.value, state.maxPrice))
+
   return (
     <Card className='position-fixed-lg mb-3'>
       <Card.Header>Filters</Card.Header>
@@ -99,20 +126,44 @@ function FiltersCard({ state }) {
           <Form.Group className='mb-3' controlId='Category'>
             <Form.Label>Category</Form.Label>
             <Form.Select aria-label='Category'>
-              <option value={true}>All Categories</option>
-              <option value={false}>My goods</option>
+              {state.categoryList.map((c) => (
+                <option>{c}</option>
+              ))}
             </Form.Select>
           </Form.Group>
           <Form.Group className='mb-3' controlId='MinPrice'>
-            <Form.Label>Min Price</Form.Label>
-            <Form.Range />
+            <Form.Label>
+              Min Price -{' '}
+              <span className='text-primary'>${state.minPrice}</span>
+            </Form.Label>
+            <Form.Range
+              min={min}
+              max={max}
+              step={step}
+              value={state.minPrice}
+              onChange={setMin}
+            />
           </Form.Group>
           <Form.Group className='mb-3' controlId='MaxPrice'>
-            <Form.Label>Max Price</Form.Label>
-            <Form.Range />
+            <Form.Label>
+              Max Price -{' '}
+              <span className='text-primary'>${state.maxPrice}</span>
+            </Form.Label>
+            <Form.Range
+              min={min}
+              max={max}
+              step={step}
+              value={state.maxPrice}
+              onChange={setMax}
+            />
           </Form.Group>
           <Form.Group className='mb-3' controlId='Available'>
-            <Form.Check type='checkbox' label='Available' />
+            <Form.Check
+              type='checkbox'
+              label='Available'
+              value={state.available}
+              onChange={(e) => state.setAvailable(e.target.value)}
+            />
           </Form.Group>
         </Form>
       </Card.Body>

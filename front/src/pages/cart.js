@@ -25,7 +25,7 @@ export default function CartPage() {
   return (
     <Row className='mt-3 '>
       <Col>
-        <h3>Cart</h3>
+        <h2>Cart</h2>
         <Row xs={1} md={2} className='g-3'>
           {goods.map((g, i) => (
             <GoodCard key={g.id} state={state} good={g} />

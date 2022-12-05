@@ -28,7 +28,7 @@ export default function AccountPage() {
               <Accordion.Header>Order #{i}</Accordion.Header>
               <Accordion.Body>
                 <Row xs={1} md={2} className='g-3'>
-                  <GoodCard key={g.id} state={state} good={g} />
+                  <GoodCard key={g.id} state={state} good={g} disabled={true} />
                 </Row>
               </Accordion.Body>
             </Accordion.Item>
