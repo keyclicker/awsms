@@ -20,9 +20,14 @@ class OrderGood(BaseModel):
 
 class Order(BaseModel):
     id: Optional[int]
-    user_username: Optional[str]
     created_at: Optional[datetime]
     status: Optional[str]
+    user_username: Optional[str]
+    phone_number: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    street: Optional[str]
+    zip: Optional[str]
 
     class Config:
         orm_mode = True
@@ -30,14 +35,24 @@ class Order(BaseModel):
 
 class OrderCreate(BaseModel):
     user_username: str
+    phone_number: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    street: Optional[str]
+    zip: Optional[str]
     goods: list[OrderGoodCreate]
 
 
 class OrderIn(BaseModel):
     id: int
-    user_username: Optional[str]
     created_at: Optional[datetime]
     status: Optional[str]
+    user_username: Optional[str]
+    phone_number: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    street: Optional[str]
+    zip: Optional[str]
 
 
 class FullOrder(BaseModel):
@@ -47,7 +62,12 @@ class FullOrder(BaseModel):
         count: Optional[int]
 
     id: Optional[int]
-    user_username: Optional[str]
     created_at: Optional[datetime]
     status: Optional[str]
+    user_username: Optional[str]
+    phone_number: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    street: Optional[str]
+    zip: Optional[str]
     goods: list[Good]

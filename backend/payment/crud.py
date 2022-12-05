@@ -1,4 +1,3 @@
-from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 
@@ -7,11 +6,9 @@ import schemas
 
 
 # orders
-def get_orders(session: Session, skip: int = 0, limit: int = 100) -> list[models.Order]:
+def get_orders(session: Session) -> list[models.Order]:
     return session.query(models.Order) \
         .order_by(models.Order.id.asc()) \
-        .offset(skip) \
-        .limit(limit) \
         .all()
 
 
@@ -23,15 +20,29 @@ def get_full_orders(session: Session):
         .all()
 
 
+def get_full_orders_by_username(session: Session, username: str):
+    return session.query(models.Order) \
+        .options(joinedload(models.Order.goods).load_only('good_id', 'count')) \
+        .join(models.OrderGood, models.Order.id == models.OrderGood.order_id) \
+        .filter(models.Order.user_username == username) \
+        .group_by(models.Order.id) \
+        .all()
+
+
 def get_order_by_id(session: Session, order_id: int) -> models.Order:
     return session.query(models.Order).filter(models.Order.id == order_id).first()
 
 
 def create_order(session: Session, order_data: schemas.OrderCreate) -> models.Order:
     order = models.Order(
-        user_username=order_data.user_username,
         created_at=datetime.utcnow(),
-        status='pending'
+        status='pending',
+        user_username=order_data.user_username,
+        phone_number=order_data.phone_number,
+        country=order_data.country,
+        city=order_data.city,
+        street=order_data.street,
+        zip=order_data.zip
     )
 
     session.add(order)

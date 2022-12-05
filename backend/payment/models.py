@@ -17,8 +17,13 @@ class Order(database.Base):
     __tablename__ = 'order'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_username = Column(String)
     created_at = Column(DateTime)
     status = Column(String)  # pending | completed | refunded
+    user_username = Column(String)
+    phone_number = Column(String)
+    country = Column(String)
+    city = Column(String)
+    street = Column(String)
+    zip = Column(String)
 
     goods = relationship("OrderGood")

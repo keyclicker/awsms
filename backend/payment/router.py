@@ -1,10 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-from fastapi.security import HTTPBearer
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.background import BackgroundTasks
 from sqlalchemy.orm import Session
 from starlette import status
+from requests.auth import AuthBase
 
+import json
+import requests
 import pickle
 import time
 import database
@@ -18,6 +22,60 @@ security = HTTPBearer()
 @router.get('/', dependencies=[Depends(security)])
 async def get_all_orders(session: Session = Depends(database.get_session)):
     return crud.get_full_orders(session=session)
+
+
+class BearerAuth(AuthBase):
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        r.headers["authorization"] = "Bearer " + self.token
+        return r
+
+
+@router.get('/user')
+async def get_user_orders(
+    token: HTTPAuthorizationCredentials = Depends(security),
+    session: Session = Depends(database.get_session)
+):
+    headers = {'Authorization': 'Bearer ' + token.credentials}
+
+    user_json = requests.get(
+        url='http://127.0.0.1:8002/users/me',
+        headers=headers
+    ).json()
+
+    if 'username' not in user_json:
+        return user_json
+
+    content = []
+
+    order_models = crud.get_full_orders_by_username(session=session, username=user_json['username'])
+
+    for order_model in order_models:
+        order = schemas.Order.from_orm(order_model).dict(exclude={'create_at': True})
+        order['created_at'] = order_model.created_at.isoformat()
+        order['goods'] = []
+
+        for order_good_model in order_model.goods:
+            order_good = schemas.OrderGood.from_orm(order_good_model).dict(exclude={'good_id': True, 'order_id': True})
+
+            order_good['good'] = requests.get(
+                url=f'http://127.0.0.1:8000/goods/{order_good_model.good_id}',
+                headers=headers | {'Content-Type': 'application/json'},
+            ).json()
+
+            if 'id' not in order_good['good']:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f'Could not find good by {order_good_model.good_id}',
+                )
+
+            order['goods'].append(order_good)
+
+        content.append(order)
+
+    return JSONResponse(content=content)
 
 
 @router.get('/{order_id}', response_model=schemas.FullOrder, dependencies=[Depends(security)])
