@@ -1,16 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 import database
-
-
-class OrderGood(database.Base):
-    __tablename__ = 'order_good'
-
-    id = Column(Integer, primary_key=True, index=True)
-    good_id = Column(Integer)
-    count = Column(Integer)
-    order_id = Column(Integer, ForeignKey("order.id"), nullable=False)
 
 
 class Order(database.Base):
@@ -26,4 +17,13 @@ class Order(database.Base):
     street = Column(String)
     zip = Column(String)
 
-    goods = relationship("OrderGood")
+    goods = relationship('OrderGood', cascade='all, delete-orphan')
+
+
+class OrderGood(database.Base):
+    __tablename__ = 'order_good'
+
+    id = Column(Integer, primary_key=True, index=True)
+    good_id = Column(Integer)
+    count = Column(Integer)
+    order_id = Column(Integer, ForeignKey("order.id"), nullable=False)

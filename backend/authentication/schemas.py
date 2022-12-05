@@ -21,9 +21,14 @@ class TokenPayload(BaseModel):
         }
 
 
-class UserAuth(BaseModel):
+class UserCreate(BaseModel):
     username: str
     full_name: str
+    password: str
+
+
+class UserAuth(BaseModel):
+    username: str
     password: str
 
 

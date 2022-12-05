@@ -13,7 +13,7 @@ class GoodCreate(BaseModel):
     category: str
     description: str
     count: int
-    specs: dict
+    specs: list[dict]
 
 
 class GoodIn(BaseModel):
@@ -24,7 +24,7 @@ class GoodIn(BaseModel):
     category: Optional[str]
     description: Optional[str]
     count: Optional[int]
-    specs: Optional[dict]
+    specs: Optional[list[dict]]
 
 
 class Good(BaseModel):
@@ -35,7 +35,7 @@ class Good(BaseModel):
     category: Optional[str]
     description: Optional[str]
     count: Optional[int]
-    specs: Optional[dict]
+    specs: Optional[list[dict]]
 
     class Config:
         orm_mode = True

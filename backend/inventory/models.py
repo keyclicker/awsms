@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 
 import database
 
@@ -14,4 +14,4 @@ class Good(database.Base):
     category = Column(String)
     description = Column(String)
     count = Column(Integer)
-    specs = Column(JSONB)
+    specs = Column(JSON)

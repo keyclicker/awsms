@@ -89,6 +89,9 @@ def filter_goods(session: Session, filter_good: schemas.FilterGood) -> dict:
     if filter_good.available is not None:
         query = query.filter(models.Good.count > 0)
 
+    if query.count() == 0:
+        return {'count': 0}
+
     return {
         'count': query.count(),
         'min_price': query.order_by(models.Good.price.asc()).first().price,
