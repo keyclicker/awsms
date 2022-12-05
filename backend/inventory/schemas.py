@@ -2,6 +2,10 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class GoodList(BaseModel):
+    good_ids: list[int]
+
+
 class GoodCreate(BaseModel):
     name: str
     image: str
@@ -37,3 +41,9 @@ class Good(BaseModel):
         orm_mode = True
 
 
+class FilterGood(BaseModel):
+    query: Optional[str]
+    category: Optional[str]
+    min_price: Optional[float]
+    max_price: Optional[float]
+    available: Optional[bool]

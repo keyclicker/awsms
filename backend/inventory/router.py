@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from fastapi.security import HTTPBearer
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -10,6 +11,27 @@ import crud
 
 router = APIRouter()
 security = HTTPBearer()
+
+
+@router.get('/categories', dependencies=[Depends(security)])
+async def get_all_categories(session: Session = Depends(database.get_session)):
+    categories = crud.get_all_categories(session=session)
+
+    return JSONResponse(content={
+        'categories': [category[0] for category in categories]
+    })
+
+
+@router.get('/search', dependencies=[Depends(security)])
+async def search(filter_good: schemas.FilterGood, session: Session = Depends(database.get_session)):
+    content = crud.filter_goods(session=session, filter_good=filter_good)
+
+    return JSONResponse(content=content)
+
+
+@router.get('/list', dependencies=[Depends(security)])
+async def get_goods_by_ids(good_list: schemas.GoodList, session: Session = Depends(database.get_session)):
+    return crud.get_goods_by_ids(session=session, good_ids=good_list.good_ids)
 
 
 @router.post('/', response_model=schemas.Good, dependencies=[Depends(security)])
