@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.params import Depends
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from fastapi.responses import JSONResponse, Response, RedirectResponse
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -15,12 +15,15 @@ database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/users/login", scheme_name="JWT")
+security = HTTPBearer()
 
 
-async def get_current_user(token: str = Depends(oauth2_schema), session: Session = Depends(database.get_session)):
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    session: Session = Depends(database.get_session)
+):
     try:
-        token_payload = auth.decode_access_token(token)
+        token_payload = auth.decode_access_token(credentials.credentials)
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,6 +58,7 @@ async def signup(auth_data: schemas.UserAuth, session: Session = Depends(databas
 
     user_schema = schemas.User(
         username=auth_data.username,
+        full_name=auth_data.full_name,
         hashed_password=auth.hash_password(auth_data.password)
     )
 

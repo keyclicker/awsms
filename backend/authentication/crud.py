@@ -16,6 +16,7 @@ def create_user(session: Session, user_schema: schemas.User):
     user = models.User(
         username=user_schema.username,
         hashed_password=user_schema.hashed_password,
+        full_name=user_schema.full_name,
     )
 
     session.add(user)

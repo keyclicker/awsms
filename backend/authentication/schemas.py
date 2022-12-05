@@ -23,12 +23,22 @@ class TokenPayload(BaseModel):
 
 class UserAuth(BaseModel):
     username: str
+    full_name: str
     password: str
 
 
 class User(BaseModel):
     username: Optional[str]
     hashed_password: Optional[str]
+    full_name: Optional[str]
+    email: Optional[str]
+    phone: Optional[str]
+    role: Optional[str]
+    image: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    address: Optional[str]
+    zip: Optional[str]
 
     class Config:
         orm_mode = True
