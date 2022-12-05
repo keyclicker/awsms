@@ -100,6 +100,11 @@ export const searchMock = mock({
       category: 'console',
       price: 500,
       description: 'For those who does not have a PC',
+      specs: [
+        { key: 'CPU', value: 'Intel i9 10900K' },
+        { key: 'RAM', value: '64GB' },
+        { key: 'Storage', value: '10TB SSD' },
+      ],
     },
   ],
 })

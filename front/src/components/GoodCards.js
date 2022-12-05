@@ -28,7 +28,7 @@ export function NarrowGoodCard({ state, good }) {
               <Form.Control
                 type='number'
                 aria-label='Count'
-                style={{ width: '60px' }}
+                style={{ width: '80px' }}
               />
 
               <h4>
@@ -68,7 +68,7 @@ export function GoodCard({ state, good }) {
                 <Form.Control
                   type='number'
                   aria-label='Count'
-                  style={{ width: '60px' }}
+                  style={{ width: '80px' }}
                 />
 
                 <h4>

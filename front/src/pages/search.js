@@ -7,7 +7,7 @@ import { useOutletContext } from 'react-router-dom'
 
 import api from '../api/api'
 import { NarrowGoodCard } from '../components/GoodCards'
-import { GoodCreator } from '../components/GoodCreator'
+import { GoodModal } from '../components/GoodModal'
 
 export default function SearchPage() {
   let state = useOutletContext()
@@ -15,6 +15,9 @@ export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [goods, setGoods] = useState([])
   const [showCreator, setShowCreator] = useState(false)
+
+  const [showModal, setShowModal] = useState(false)
+  const [modalGood, setModalGood] = useState(null)
 
   useEffect(() => {
     api.search(query).then((res) => {
@@ -33,32 +36,44 @@ export default function SearchPage() {
   }
 
   return (
-    <Row className='mt-3 '>
-      <Col xs={{ span: 12 }} lg={{ span: 3 }}>
-        <FiltersCard state={state} />
-        {state?.user?.type === 0 && !showCreator && (
-          <Button className='w-100' onClick={() => setShowCreator(true)}>
-            Create Goods
-          </Button>
-        )}
-      </Col>
-
-      <Col>
-        <Row xs={1} md={3} className='g-3'>
-          {state?.user?.type === 0 && showCreator && (
-            <GoodCreator state={state} />
+    <>
+      <Row className='mt-3 '>
+        <Col xs={{ span: 12 }} lg={{ span: 3 }}>
+          <FiltersCard state={state} />
+          {state?.user?.type === 0 && !showCreator && (
+            <Button className='w-100' onClick={() => setShowCreator(true)}>
+              Create Goods
+            </Button>
           )}
+        </Col>
 
-          {goods.map((g, i) => (
-            <NarrowGoodCard key={g.id} state={state} good={g} />
-          ))}
+        <Col>
+          <Row xs={1} md={3} className='g-3'>
+            {goods.map((g, i) => (
+              <div
+                onClick={(e) => {
+                  setModalGood(g)
+                  setShowModal(true)
+                }}
+              >
+                <NarrowGoodCard key={g.id} state={state} good={g} />
+              </div>
+            ))}
 
-          {goods.length === 0 && (
-            <h3 className='text-center mt-4 text-muted'>Goods not found</h3>
-          )}
-        </Row>
-      </Col>
-    </Row>
+            {goods.length === 0 && (
+              <h3 className='text-center mt-4 text-muted'>Goods not found</h3>
+            )}
+          </Row>
+        </Col>
+      </Row>
+
+      <GoodModal
+        state={state}
+        show={showModal}
+        good={modalGood}
+        close={(e) => setShowModal(false)}
+      />
+    </>
   )
 }
 
