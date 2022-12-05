@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Container } from 'react-bootstrap'
 import { Outlet } from 'react-router-dom'
 
 import api from './api/api'
@@ -21,7 +22,9 @@ function App() {
   return (
     <>
       <Header state={state} />
-      <Outlet state={state} />
+      <Container fluid='xl'>
+        <Outlet context={state} />
+      </Container>
     </>
   )
 }
