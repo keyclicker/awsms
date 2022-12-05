@@ -11,6 +11,8 @@ import {
 
 import App from './App'
 import './index.scss'
+import AccountPage from './pages/account'
+import CartPage from './pages/cart'
 import SearchPage from './pages/search'
 import reportWebVitals from './reportWebVitals'
 
@@ -19,6 +21,8 @@ const router = createBrowserRouter(
     <Route path='/*' element={<App />} errorElement={<div>Error 404</div>}>
       <Route index element={<Navigate to='/search' />} />
       <Route path='search/' element={<SearchPage />} />
+      <Route path='cart/' element={<CartPage />} />
+      <Route path='account/' element={<AccountPage />} />
     </Route>
   )
 )
