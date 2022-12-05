@@ -6,7 +6,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { useOutletContext } from 'react-router-dom'
 
 import api from '../api/api'
-import { GoodModal, NarrowGoodCard } from '../components/GoodCards'
+import { NarrowGoodCard } from '../components/GoodCards'
 
 export default function SearchPage() {
   let state = useOutletContext()
@@ -22,12 +22,15 @@ export default function SearchPage() {
   const [category, setCategory] = useState(true)
   const [categoryList, setCategoryList] = useState([])
 
-  const [showModal, setShowModal] = useState(false)
-  const [modalGood, setModalGood] = useState(null)
-
   useEffect(() => {
     api
-      .search({ query, minPrice, maxPrice, available, category })
+      .search({
+        query,
+        min_price: minPrice,
+        max_price: maxPrice,
+        available,
+        category,
+      })
       .then((res) => {
         setGoods(res.data.list)
         setAbsoluteMinPrice(res.data.minPrice)
@@ -68,14 +71,7 @@ export default function SearchPage() {
         <Col>
           <Row xs={1} md={3} className='g-3'>
             {goods.map((g, i) => (
-              <div
-                onClick={(e) => {
-                  setModalGood(g)
-                  setShowModal(true)
-                }}
-              >
-                <NarrowGoodCard key={g.id} state={state} good={g} />
-              </div>
+              <NarrowGoodCard key={g.id} state={state} good={g} />
             ))}
 
             {goods.length === 0 && (
@@ -84,13 +80,6 @@ export default function SearchPage() {
           </Row>
         </Col>
       </Row>
-
-      <GoodModal
-        state={state}
-        show={showModal}
-        good={modalGood}
-        close={(e) => setShowModal(false)}
-      />
     </>
   )
 }

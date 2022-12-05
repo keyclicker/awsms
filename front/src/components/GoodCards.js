@@ -11,16 +11,27 @@ import {
   Stack,
 } from 'react-bootstrap'
 
+function isGoodInCart(good, cart) {
+  return cart?.some((c) => c?.id === good?.id)
+}
+
 export function NarrowGoodCard({ state, good }) {
-  const deleteFromCart = () => {}
-  const addToCart = () => {}
+  const isInCart = isGoodInCart(good, state.getCart())
 
   return (
     <Col>
       <Card>
         <Row className='g-0'>
           <Ratio aspectRatio='4x3'>
-            <Card.Img fluid rounded src={good.image} />
+            <Card.Img
+              fluid
+              rounded
+              src={good.image}
+              onClick={(e) => {
+                state.setModalGood(good)
+                state.setShowModal(true)
+              }}
+            />
           </Ratio>
 
           <Card.Body>
@@ -31,10 +42,28 @@ export function NarrowGoodCard({ state, good }) {
             <Card.Text>{good.description}</Card.Text>
 
             <Stack direction='horizontal' gap={2}>
-              <Button variant='primary'>
-                <i className='bi bi-bag' /> Buy
-              </Button>
+              {isInCart ? (
+                <Button
+                  variant='danger'
+                  onClick={(e) => {
+                    state.removeFromCart(good)
+                  }}
+                >
+                  <i className='bi bi-bag-x' />
+                </Button>
+              ) : (
+                <Button
+                  variant='primary'
+                  onClick={(e) => {
+                    state.addToCart(good)
+                  }}
+                >
+                  <i className='bi bi-bag' /> Buy
+                </Button>
+              )}
+
               <Form.Control
+                disabled={isInCart}
                 type='number'
                 aria-label='Count'
                 style={{ width: '80px' }}
@@ -72,7 +101,12 @@ export function GoodCard({ state, good, disabled }) {
 
               <Stack direction='horizontal' gap={2}>
                 {!disabled && (
-                  <Button variant='danger'>
+                  <Button
+                    variant='danger'
+                    onClick={(e) => {
+                      state.removeFromCart(good)
+                    }}
+                  >
                     <i className='bi bi-bag-x' />
                   </Button>
                 )}
