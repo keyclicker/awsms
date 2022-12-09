@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
-
-import models
-import schemas
+from app import models, schemas
 
 
 # orders

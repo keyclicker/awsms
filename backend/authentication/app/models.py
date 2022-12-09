@@ -1,6 +1,5 @@
-import database
-
 from sqlalchemy import Column, String
+from app import database
 
 
 class User(database.Base):

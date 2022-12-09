@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from schemas import TokenPayload
+from app.schemas import TokenPayload
 
 import jwt
 
