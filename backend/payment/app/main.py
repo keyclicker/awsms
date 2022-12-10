@@ -6,13 +6,11 @@ from fastapi.background import BackgroundTasks
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
+from app import database, schemas, crud
 
 import requests
 import pickle
 import time
-import database
-import schemas
-import crud
 
 database.Base.metadata.create_all(bind=database.engine)
 

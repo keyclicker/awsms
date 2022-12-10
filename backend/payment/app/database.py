@@ -3,10 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from redis_om import get_redis_connection
 
-HOST = 'localhost'
+HOST = 'database'
 PORT = 5432
 POSTGRES_USER = 'postgres'
-POSTGRES_PASSWORD = 'admin'
+POSTGRES_PASSWORD = 'postgres'
 POSTGRES_DATABASE = 'awsms_payment'
 
 SQLALCHEMY_DATABASE_URL = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{HOST}:{PORT}/{POSTGRES_DATABASE}'

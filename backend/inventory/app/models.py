@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.dialects.postgresql import JSON
 
-import database
+from app import database
 
 
 class Good(database.Base):

@@ -5,12 +5,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
+from app import database, schemas, auth, crud
 
 import jwt
-import database
-import schemas
-import auth
-import crud
 
 database.Base.metadata.create_all(bind=database.engine)
 

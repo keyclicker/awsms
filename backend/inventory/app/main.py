@@ -5,10 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
-
-import database
-import schemas
-import crud
+from app import database, schemas, crud
 
 database.Base.metadata.create_all(bind=database.engine)
 

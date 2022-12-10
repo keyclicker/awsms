@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship, backref
-
-import database
+from sqlalchemy.orm import relationship
+from app import database
 
 
 class Order(database.Base):
