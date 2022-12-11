@@ -72,7 +72,7 @@ def filter_goods(session: Session, filter_good: schemas.FilterGood) -> dict:
     query = session.query(models.Good)
 
     if filter_good.query is not None:
-        query = query.filter(models.Good.name.like(f'%{filter_good.query}%'))
+        query = query.filter(models.Good.name.ilike(f'%{filter_good.query}%'))
 
     if filter_good.category is not None:
         query = query.filter(models.Good.category.like(f'%{filter_good.category}%'))

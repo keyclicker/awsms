@@ -2,12 +2,12 @@ version: '3'
 services:
   authentication:
     container_name: authentication-container
-    build: ./authentication
+    build: ./backend/authentication
     command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     ports:
-      - 8001:8000
+      - "8001:8000"
     volumes:
-      - ./authentication:/usr/code/app
+      - ./backend/authentication:/usr/code/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@database:5432/awsws_authentication
     depends_on:
@@ -16,7 +16,7 @@ services:
 
   inventory:
     container_name: inventory-container
-    build: ./inventory
+    build: ./backend/inventory
     command:
       - /bin/bash
       - -c
@@ -24,9 +24,9 @@ services:
         uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
         cd /code/app && PYTHONPATH="/code" python3 consumer.py
     ports:
-      - 8002:8000
+      - "8002:8000"
     volumes:
-      - ./inventory:/usr/code/app
+      - ./backend/inventory:/usr/code/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@database:5432/awsws_inventory
     depends_on:
@@ -35,7 +35,7 @@ services:
 
   payment:
     container_name: payment-container
-    build: ./payment
+    build: ./backend/payment
     command:
       - /bin/bash
       - -c
@@ -43,9 +43,9 @@ services:
         uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
         cd /code/app && PYTHONPATH="/code" python3 consumer.py
     ports:
-      - 8003:8000
+      - "8003:8000"
     volumes:
-      - ./payment:/usr/code/app
+      - ./backend/payment:/usr/code/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@database:5432/awsws_payment
     depends_on:
@@ -54,11 +54,27 @@ services:
 
   database:
     container_name: database-container
-    build: ./database
+    build: ./backend/database
     expose:
       - 5432
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./backend/database/data:/var/lib/postgresql/data
+
+  server:
+    container_name: server
+    build: ./
+    ports:
+      - '8080:8080'
+    depends_on:
+      - authentication
+      - inventory
+      - payment
+#
+#volumes:
+#  db:
+#    driver: local

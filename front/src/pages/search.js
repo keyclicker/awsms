@@ -6,7 +6,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { useOutletContext } from 'react-router-dom'
 
 import api from '../api/api'
-import { NarrowGoodCard } from '../components/GoodCards'
+import { GoodCreateModal, NarrowGoodCard } from '../components/GoodCards'
 
 export default function SearchPage() {
   let state = useOutletContext()
@@ -15,28 +15,29 @@ export default function SearchPage() {
 
   const [query, setQuery] = useState('')
   const [minPrice, setMinPrice] = useState(0)
-  const [maxPrice, setMaxPrice] = useState(1000)
+  const [maxPrice, setMaxPrice] = useState(5000)
   const [absoluteMinPrice, setAbsoluteMinPrice] = useState(0)
-  const [absoluteMaxPrice, setAbsoluteMaxPrice] = useState(1000)
+  const [absoluteMaxPrice, setAbsoluteMaxPrice] = useState(5000)
   const [available, setAvailable] = useState(false)
-  const [category, setCategory] = useState(true)
+  const [category, setCategory] = useState('')
   const [categoryList, setCategoryList] = useState([])
+  const [createModal, setCreateModal] = useState(false)
+  const closeCreateModal = () => setCreateModal(false)
+
+  const research = () => {
+    api.search(query, category, minPrice, maxPrice, available).then((res) => {
+      setGoods(res.data.goods)
+    })
+  }
 
   useEffect(() => {
-    api
-      .search({
-        query,
-        min_price: minPrice,
-        max_price: maxPrice,
-        available,
-        category,
-      })
-      .then((res) => {
-        setGoods(res.data.list)
-        setAbsoluteMinPrice(res.data.minPrice)
-        setAbsoluteMaxPrice(res.data.maxPrice)
-        setCategoryList(res.data.categories)
-      })
+    api.categories().then((res) => {
+      setCategoryList(res.data?.categories || [])
+    })
+  }, [])
+
+  useEffect(() => {
+    research()
   }, [query, minPrice, maxPrice, available, category])
 
   state = {
@@ -59,6 +60,7 @@ export default function SearchPage() {
     setCategory,
     categoryList,
     setCategoryList,
+    research,
   }
 
   return (
@@ -66,26 +68,41 @@ export default function SearchPage() {
       <Row className='mt-3 '>
         <Col xs={{ span: 12 }} lg={{ span: 3 }}>
           <FiltersCard state={state} />
+          {state.user?.role == 'admin' && (
+            <Button
+              variant='primary'
+              className='w-100'
+              onClick={(e) => {
+                setCreateModal(true)
+              }}
+            >
+              Create Good
+            </Button>
+          )}
         </Col>
 
         <Col>
           <Row xs={1} md={3} className='g-3'>
-            {goods.map((g, i) => (
+            {goods?.map((g, i) => (
               <NarrowGoodCard key={g.id} state={state} good={g} />
-            ))}
-
-            {goods.length === 0 && (
+            )) || (
               <h3 className='text-center mt-4 text-muted'>Goods not found</h3>
             )}
           </Row>
         </Col>
       </Row>
+
+      <GoodCreateModal
+        show={createModal}
+        close={closeCreateModal}
+        state={state}
+      />
     </>
   )
 }
 
 function FiltersCard({ state }) {
-  const min = state.absoluteMinPrice
+  const min = 0
   const max = state.absoluteMaxPrice
   const step = (max - min) / 100
 
@@ -114,8 +131,15 @@ function FiltersCard({ state }) {
 
           <Form.Group className='mb-3' controlId='Category'>
             <Form.Label>Category</Form.Label>
-            <Form.Select aria-label='Category'>
-              {state.categoryList.map((c) => (
+            <Form.Select
+              aria-label='Category'
+              value={state.category}
+              onChange={(e) =>
+                state.setCategory(e.target.value == 'All' ? '' : e.target.value)
+              }
+            >
+              <option>All</option>
+              {state.categoryList?.map((c) => (
                 <option>{c}</option>
               ))}
             </Form.Select>

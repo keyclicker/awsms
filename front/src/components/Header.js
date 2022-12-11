@@ -1,26 +1,12 @@
 import { useState } from 'react'
-import {
-  Button,
-  Container,
-  Image,
-  Navbar,
-  OverlayTrigger,
-  Popover,
-} from 'react-bootstrap'
+import { Button, Container, Image, Navbar } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
-import client from '../api/client'
 import { LoginModal, SignupModal } from './AuthModals'
 
 export default function Header({ state }) {
   const [showSignup, setShowSignup] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-
-  const logout = () => {
-    client.post('/logout').then((res) => {
-      state.setUser(null)
-    })
-  }
 
   return (
     <>
@@ -39,36 +25,35 @@ export default function Header({ state }) {
                 <i className='bi bi-bag' />
               </Button>
             </Link>
-            {state.user && (
+            {state.user ? (
               <Link to='/account'>
                 <Image
                   role='button'
                   roundedCircle
                   fluid
-                  src={state.user.image}
+                  src={state.user.image || 'https://picsum.photos/200'}
                   className='ms-3'
                   style={{ width: '38px', height: '38px' }}
                 ></Image>
               </Link>
+            ) : (
+              <>
+                <Button
+                  variant='primary'
+                  className='ms-3'
+                  onClick={() => setShowSignup(true)}
+                >
+                  Sign Up
+                </Button>
+                <Button
+                  variant='light'
+                  className='ms-3'
+                  onClick={() => setShowLogin(true)}
+                >
+                  Log In
+                </Button>
+              </>
             )}
-            {/*) : (}*/}
-            <>
-              <Button
-                variant='primary'
-                className='ms-3'
-                onClick={() => setShowSignup(true)}
-              >
-                Sign Up
-              </Button>
-              <Button
-                variant='light'
-                className='ms-3'
-                onClick={() => setShowLogin(true)}
-              >
-                Log In
-              </Button>
-            </>
-            {/*)}*/}
           </Navbar.Collapse>
         </Container>
       </Navbar>

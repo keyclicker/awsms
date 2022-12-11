@@ -11,8 +11,11 @@ function App() {
   const [cart, setCart] = useState(null)
 
   useEffect(() => {
+    const localUser = localStorage.getItem('user')
+    if (localUser) setUser(JSON.parse(localUser))
+
     api.session().then((res) => {
-      setUser(res.data.user)
+      setUser({ ...user, ...res.data })
     })
   }, [])
 
@@ -21,21 +24,30 @@ function App() {
     return cart
   }
 
-  const addToCart = (good) => {
-    const newCart = [...cart, good]
+  const addToCart = (good, count) => {
+    const newCart = [...cart, { good, count }]
     setCart(newCart)
     localStorage.setItem('cart', JSON.stringify(newCart))
   }
 
   const removeFromCart = (good) => {
-    const newCart = cart.filter((g) => g.id !== good.id)
+    const newCart = cart.filter((g) => g.good.id !== good.id)
+    setCart(newCart)
+    localStorage.setItem('cart', JSON.stringify(newCart))
+  }
+
+  const updateCountCart = (good, count) => {
+    const newCart = cart.map((g) => {
+      if (g.good.id === good.id) return { good, count }
+      return g
+    })
     setCart(newCart)
     localStorage.setItem('cart', JSON.stringify(newCart))
   }
 
   const clearCart = () => {
     setCart([])
-    localStorage.setItem('cart', JSON.stringify(cart))
+    localStorage.setItem('cart', JSON.stringify([]))
   }
 
   const [showModal, setShowModal] = useState(false)
@@ -47,6 +59,7 @@ function App() {
     getCart,
     addToCart,
     removeFromCart,
+    updateCountCart,
     clearCart,
     showModal,
     setShowModal,
@@ -63,6 +76,7 @@ function App() {
       <GoodModal
         good={modalGood}
         show={showModal}
+        state={state}
         close={() => setShowModal(false)}
       />
     </>

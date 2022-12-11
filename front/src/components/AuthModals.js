@@ -3,22 +3,24 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 
-import client from '../api/client'
+import api from '../api/api'
 
 export function LoginModal({ state, show, close }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [wrong, setWrong] = useState(false)
 
   const onLogin = () => {
-    client.post('/login', { username, password }).then((res) => {
-      if (res.data.user) {
-        state.setUser(res.data.user)
-      } else {
-        setWrong(true)
-      }
-      close()
-    })
+    api
+      .login(username, password)
+      .then((res) => {
+        const newUser = { ...state.user, ...res.data }
+        state.setUser(newUser)
+        localStorage.setItem('user', JSON.stringify(newUser))
+        close()
+      })
+      .catch((err) => {
+        alert(err)
+      })
   }
 
   const disabled = username.length < 4 || password.length < 4
@@ -64,17 +66,19 @@ export function SignupModal({ state, show, close }) {
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
-  const [wrong, setWrong] = useState(false)
 
   const onSignup = () => {
-    client.post('/signup', { username, name, password }).then((res) => {
-      if (res.data.user) {
-        state.setUser(res.data.user)
-      } else {
-        setWrong(true)
-      }
-      close()
-    })
+    api
+      .signup(username, name, password)
+      .then((res) => {
+        const newUser = { ...state.user, ...res.data }
+        state.setUser(newUser)
+        localStorage.setItem('user', JSON.stringify(newUser))
+        close()
+      })
+      .catch((err) => {
+        alert(err)
+      })
   }
 
   const disabled =

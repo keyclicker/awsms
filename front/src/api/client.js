@@ -1,5 +1,9 @@
 export default async function client(endpoint, { body, ...customConfig } = {}) {
-  const headers = { 'Content-Type': 'application/json' }
+  const token = JSON.parse(localStorage.getItem('user'))?.access_token
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + token,
+  }
 
   const config = {
     ...customConfig,
@@ -29,7 +33,7 @@ export default async function client(endpoint, { body, ...customConfig } = {}) {
     }
     throw new Error(response.statusText)
   } catch (err) {
-    return Promise.reject(err.message ? err.message : data)
+    return Promise.reject(err?.message + ': ' + data?.detail || data)
   }
 }
 
