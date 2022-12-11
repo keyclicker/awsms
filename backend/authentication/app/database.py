@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-HOST = 'localhost'
+HOST = 'database'
 PORT = 5432
 POSTGRES_USER = 'postgres'
 POSTGRES_PASSWORD = 'postgres'
