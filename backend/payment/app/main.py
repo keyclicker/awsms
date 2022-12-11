@@ -12,6 +12,10 @@ import requests
 import pickle
 import time
 
+AUTHENTICATION_URL = 'http://authentication:8000'
+INVENTORY_URL = 'http://inventory:8000'
+
+
 database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
@@ -37,7 +41,7 @@ async def get_user_orders(
 ):
     headers = {'Authorization': 'Bearer ' + credentials.credentials}
 
-    user_json = requests.post(url='http://127.0.0.1:8002/me', headers=headers).json()
+    user_json = requests.post(url=f'{AUTHENTICATION_URL}/me', headers=headers).json()
 
     if 'username' not in user_json:
         return user_json
@@ -55,7 +59,7 @@ async def get_user_orders(
             order_good = schemas.OrderGood.from_orm(order_good_model).dict(exclude={'good_id': True, 'order_id': True})
 
             order_good['good'] = requests.post(
-                url=f'http://127.0.0.1:8000/goods/{order_good_model.good_id}',
+                url=f'{INVENTORY_URL}/goods/{order_good_model.good_id}',
                 headers=headers | {'Content-Type': 'application/json'},
             ).json()
 

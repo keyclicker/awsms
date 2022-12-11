@@ -10,7 +10,7 @@ class User(database.Base):
     full_name = Column(String)
     email = Column(String)
     phone = Column(String)
-    role = Column(String)
+    role = Column(String)  # admin | ranker
     image = Column(String)
     country = Column(String)
     city = Column(String)

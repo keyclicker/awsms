@@ -1,11 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.params import Depends
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from app import database, schemas, crud
+
+import requests
+
+AUTHENTICATION_URL = 'http://authentication:8000'
 
 database.Base.metadata.create_all(bind=database.engine)
 
@@ -42,7 +46,22 @@ async def search(filter_good: schemas.FilterGood, session: Session = Depends(dat
 
 
 @app.post('/update', response_model=schemas.Good, dependencies=[Depends(security)])
-async def update_good(updated_good: schemas.GoodIn, session: Session = Depends(database.get_session)):
+async def update_good(
+    updated_good: schemas.GoodIn,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    session: Session = Depends(database.get_session)
+):
+    user = requests.post(
+        url=f'{AUTHENTICATION_URL}/me',
+        headers={'Authorization': 'Bearer ' + credentials.credentials}
+    ).json()
+
+    if 'username' not in user:
+        return user
+
+    if user.get('role') != 'admin':
+        return {'message': 'you don\'t have enough privileges'}
+
     good = crud.update_good(session=session, updated_good=updated_good)
 
     if not good:
