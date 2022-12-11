@@ -22,7 +22,7 @@ services:
       - -c
       - |
         uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-        python3 app/consumer.py
+        cd code/app && python3 consumer.py
     ports:
       - 8002:8000
     volumes:
@@ -41,7 +41,7 @@ services:
       - -c
       - |
         uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-        python3 app/consumer.py
+        cd code/app && python3 consumer.py
     ports:
       - 8003:8000
     volumes:
