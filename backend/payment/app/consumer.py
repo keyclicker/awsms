@@ -1,7 +1,6 @@
+from app import database, crud, schemas
+
 import time
-import database
-import crud
-import schemas
 
 KEY = 'refund_order'
 GROUP = 'payment_group'

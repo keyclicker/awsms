@@ -1,8 +1,8 @@
+from app import database, schemas
+
 import pickle
 import time
 import crud
-import database
-import schemas
 
 KEY = 'complete_order'
 GROUP = 'inventory_group'
@@ -65,7 +65,7 @@ def main():
                 continue
 
             for updated_good in updated_goods:
-                crud.update_good(session=database.get_session(), updated_good=updated_good)
+                crud.update_good(session=next(database.get_session()), updated_good=updated_good)
 
 
 if __name__ == '__main__':
