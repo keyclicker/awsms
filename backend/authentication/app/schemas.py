@@ -3,11 +3,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class Token(BaseModel):
-    access_token: str
-    refresh_token: str
-
-
 class TokenPayload(BaseModel):
     subject: str
     expiration_time: datetime
@@ -30,6 +25,20 @@ class UserCreate(BaseModel):
 class UserAuth(BaseModel):
     username: str
     password: str
+
+
+class UserIn(BaseModel):
+    username: str
+    hashed_password: Optional[str]
+    full_name: Optional[str]
+    email: Optional[str]
+    phone: Optional[str]
+    role: Optional[str]
+    image: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    address: Optional[str]
+    zip: Optional[str]
 
 
 class User(BaseModel):

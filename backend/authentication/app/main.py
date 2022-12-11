@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.params import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -20,6 +19,25 @@ app.add_middleware(
 )
 
 security = HTTPBearer()
+
+
+def login_user(username: str):
+    access_token = auth.create_access_token(username)
+    refresh_token = auth.create_refresh_token(username)
+
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token
+    }
+
+
+def check_if_is_admin(user: schemas.User):
+    if user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='You don\'t have enough privileges',
+            headers={'WWW-Authenticate': 'Bearer'}
+        )
 
 
 async def get_current_user(
@@ -54,7 +72,7 @@ async def get_current_user(
     return user
 
 
-@app.post('/signup', response_model=schemas.User)
+@app.post('/signup')
 async def signup(data: schemas.UserCreate, session: Session = Depends(database.get_session)):
     if crud.get_user_by_username(session, data.username) is not None:
         raise HTTPException(
@@ -68,7 +86,10 @@ async def signup(data: schemas.UserCreate, session: Session = Depends(database.g
         hashed_password=auth.hash_password(data.password)
     )
 
-    return crud.create_user(session, user_schema)
+    user = crud.create_user(session=session, user_schema=user_schema)
+    tokens = login_user(user.username)
+
+    return user.__dict__ | tokens
 
 
 async def authenticate_user(username: str, password: str, session: Session):
@@ -80,7 +101,7 @@ async def authenticate_user(username: str, password: str, session: Session):
     return user
 
 
-@app.post('/login', response_model=schemas.Token)
+@app.post('/login')
 async def login(data: schemas.UserAuth, session: Session = Depends(database.get_session)):
     username = data.username
     password = data.password
@@ -94,25 +115,39 @@ async def login(data: schemas.UserAuth, session: Session = Depends(database.get_
             headers={'WWW-Authenticate': 'Bearer'}
         )
 
-    access_token = auth.create_access_token(username)
-    refresh_token = auth.create_refresh_token(username)
+    tokens = login_user(user.username)
 
-    return JSONResponse(content={
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    })
+    return user.__dict__ | tokens
 
 
 @app.post('/logout', dependencies=[Depends(get_current_user)])
 async def logout():
-    # TODO: delete access_token
-    response = JSONResponse(content={})
-    response.delete_cookie(key='access_token')
-    response.delete_cookie(key='refresh_token')
-
-    return response
+    return {'message': 'ok'}
 
 
 @app.post('/me', response_model=schemas.User)
 async def get_me(user: schemas.User = Depends(get_current_user)):
+    return user
+
+
+@app.post('/users')
+async def get_all_users(
+    user: schemas.User = Depends(get_current_user),
+    session: Session = Depends(database.get_session)
+):
+    check_if_is_admin(user)
+
+    return crud.get_users(session=session)
+
+
+@app.post('/users')
+async def update_user(updated_user: schemas.UserIn, session: Session = Depends(database.get_session)):
+    user = crud.update_user(session=session, updated_user=updated_user)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Could not find the user',
+        )
+
     return user

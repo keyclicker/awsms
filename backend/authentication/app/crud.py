@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
 
-from app import models
-from app import schemas
+from app import models, schemas
 
 
-def get_users(session: Session, skip: int = 0, limit: int = 100):
-    return session.query(models.User).offset(skip).limit(limit).all()
+def get_users(session: Session):
+    return session.query(models.User).all()
 
 
 def get_user_by_username(session: Session, username: str):
@@ -17,9 +16,29 @@ def create_user(session: Session, user_schema: schemas.User):
         username=user_schema.username,
         hashed_password=user_schema.hashed_password,
         full_name=user_schema.full_name,
+        role='ranker'
     )
 
     session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
+
+
+def update_user(session: Session, updated_user: schemas.UserIn):
+    user = get_user_by_username(session, updated_user.username)
+
+    if user is None:
+        return None
+
+    for key, value in user.dict().items():
+        if key == 'id':
+            continue
+
+        if value is not None:
+            setattr(user, key, value)
+
     session.commit()
     session.refresh(user)
 
